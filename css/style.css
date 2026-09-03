@@ -236,8 +236,8 @@ a:hover { color: var(--gold-600); }
 .brand-mark svg { width: 100%; height: 100%; }
 .brand-logo { width: auto; height: 44px; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
-.brand-text strong { font-family: var(--font-display); font-size: 1.16rem; letter-spacing: -.01em; }
-.brand-text small { font-size: .74rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-500); }
+.brand-text strong { font-family: var(--font-display); font-size: 1.16rem; letter-spacing: -.01em; white-space: nowrap; }
+.brand-text small { font-size: .74rem; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-500); white-space: nowrap; }
 .brand.light { color: #fff; }
 .brand.light .brand-mark { color: var(--gold-400); }
 .brand.light .brand-text small { color: #9db8b0; }
@@ -819,6 +819,16 @@ a:hover { color: var(--gold-600); }
   .footer-brand { grid-column: 1 / -1; }
 }
 
+/* --- 769-1180px: eight nav links plus a CTA stop fitting comfortably, so
+       tighten the links and drop the duplicate Admissions button (the same
+       link is already in the list). --- */
+@media (min-width: 769px) and (max-width: 1180px) {
+  .primary-nav { gap: 12px; }
+  .primary-nav ul { gap: 0; }
+  .primary-nav ul a { padding: 8px 9px; font-size: .9rem; }
+  .nav-cta { display: none; }
+}
+
 /* --- 768px: tablets portrait & below — nav collapses to a drawer --- */
 @media (max-width: 768px) {
   :root { --header-h: 68px; }
@@ -897,4 +907,184 @@ a:hover { color: var(--gold-600); }
   body { color: #000; }
   .section, .section-dark, .section-tint { background: #fff !important; color: #000 !important; padding: 18px 0; }
   .reveal { opacity: 1 !important; transform: none !important; }
+}
+
+/* ==========================================================================
+   18. Notice board, sub-pages and admin-managed content
+   Added with the admin panel: the notice list on the homepage, the standalone
+   notice board page, single notice pages, and the "not filled in yet" marker.
+   ========================================================================== */
+
+/* ---------- Sub-page header (notices.php, notice.php) -------------------- */
+.page-head {
+  padding: clamp(28px, 4vw, 48px) 0 0;
+  background: var(--paper-tint);
+  border-bottom: 1px solid var(--line);
+}
+.page-head h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: .3em; }
+.page-head .page-lede { color: var(--ink-500); font-size: 1.05rem; max-width: 60ch; }
+.page-head > .container { padding-bottom: clamp(24px, 3vw, 40px); }
+
+.breadcrumb {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  font-size: .88rem;
+  color: var(--ink-500);
+}
+.breadcrumb a { color: var(--green-700); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb span[aria-hidden] { color: var(--ink-300); }
+.breadcrumb [aria-current] { color: var(--ink-500); }
+
+/* ---------- Category filter chips ---------------------------------------- */
+.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 15px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  font-size: .89rem; font-weight: 600;
+  color: var(--ink-700); text-decoration: none;
+  transition: border-color .15s var(--ease), color .15s var(--ease), background-color .15s var(--ease);
+}
+.chip span { font-weight: 500; color: var(--ink-300); }
+.chip:hover { border-color: var(--green-600); color: var(--green-800); }
+.chip.is-active { background: var(--green-700); border-color: var(--green-700); color: #fff; }
+.chip.is-active span { color: rgba(255, 255, 255, .7); }
+
+/* ---------- Notice cards -------------------------------------------------- */
+.notice-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(16px, 2vw, 24px);
+}
+.notice-list.wide { grid-template-columns: 1fr; }
+
+.notice-card {
+  position: relative;
+  padding: clamp(20px, 2.4vw, 28px);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--green-600);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease);
+}
+.notice-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.notice-card.is-pinned { border-left-color: var(--gold-500); background: #fffdf8; }
+.notice-card h2, .notice-card h3 { font-size: clamp(1.08rem, 1.6vw, 1.28rem); margin: 0 0 .45em; }
+.notice-card h2 a, .notice-card h3 a { color: var(--green-900); text-decoration: none; }
+.notice-card h2 a:hover, .notice-card h3 a:hover { color: var(--green-600); text-decoration: underline; }
+.notice-excerpt { color: var(--ink-500); font-size: .96rem; margin-bottom: .9em; }
+
+.notice-meta {
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  font-size: .84rem;
+  color: var(--ink-500);
+}
+.notice-meta time { font-weight: 600; }
+
+.notice-tag {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--green-100);
+  color: var(--green-800);
+  font-size: .74rem; font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.notice-tag.pinned { background: var(--gold-100); color: var(--gold-600); }
+.notice-tag.new { background: #e7f3ec; color: #146b52; }
+
+.notice-more { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin: 0; font-size: .92rem; }
+.notice-more a { font-weight: 600; text-decoration: none; }
+.notice-more a:hover { text-decoration: underline; }
+.notice-file { color: var(--gold-600) !important; }
+
+/* ---------- Single notice ------------------------------------------------- */
+.notice-full {
+  max-width: 76ch;
+  margin-inline: auto;
+  padding: clamp(24px, 3.5vw, 44px);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.notice-full h1 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); margin-bottom: .7em; }
+.notice-body { font-size: 1.03rem; color: var(--ink-700); }
+.notice-body p { margin-bottom: 1.15em; }
+.notice-attachment { margin-top: 1.6em; }
+.notice-stamp { margin-top: 2em; padding-top: 1.2em; border-top: 1px solid var(--line); }
+
+.notice-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 76ch;
+  margin: 28px auto 0;
+}
+.notice-nav-link {
+  display: block;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  text-decoration: none;
+  transition: border-color .15s var(--ease), transform .15s var(--ease);
+}
+.notice-nav-link:hover { border-color: var(--green-600); transform: translateY(-2px); }
+.notice-nav-link small {
+  display: block;
+  font-size: .76rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold-600);
+  margin-bottom: 4px;
+}
+.notice-nav-link span { color: var(--green-900); font-weight: 600; font-size: .95rem; }
+.notice-nav-link.next { text-align: right; }
+
+/* ---------- Empty states ------------------------------------------------- */
+.empty-state {
+  padding: clamp(28px, 4vw, 48px);
+  text-align: center;
+  background: var(--paper-tint);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-lg);
+  color: var(--ink-500);
+}
+.empty-state h1, .empty-state h2 { margin-bottom: .5em; }
+.empty-state p:last-child { margin-top: 1.2em; }
+
+/* ---------- "Not filled in yet" marker ----------------------------------- */
+/* Shown in place of a detail the school has not entered in the admin panel,
+   so a missing phone number reads as pending rather than broken. */
+.pending {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 5px;
+  background: var(--gold-100);
+  color: var(--gold-600);
+  font-size: .88em;
+  font-style: italic;
+  border: 1px dashed #e6cf9f;
+}
+
+.established-line { color: var(--ink-500); font-size: .95rem; margin-bottom: 1.4em; }
+.established-line strong { color: var(--green-800); }
+
+/* A store button with no link configured yet. */
+.store-btn.is-disabled { opacity: .45; cursor: not-allowed; }
+.store-btn.is-disabled:hover { transform: none; background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .28); }
+
+/* ---------- Responsive --------------------------------------------------- */
+@media (max-width: 768px) {
+  .notice-list { grid-template-columns: 1fr; }
+  .notice-nav { grid-template-columns: 1fr; }
+  .notice-nav-link.next { text-align: left; }
 }

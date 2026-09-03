@@ -1,0 +1,25 @@
+# Live site content and uploads belong to the server, not to git.
+# The school edits these through /admin; committing them would overwrite the
+# live site's content on every deploy — and admin.json holds a password hash.
+data/*.json
+files/*
+!files/.htaccess
+images/gallery/*
+!images/gallery/.htaccess
+!images/gallery/.gitkeep
+
+# Real photos supplied by the school
+images/hero.jpg
+images/welcome.jpg
+images/about.jpg
+images/app-screen.png
+images/logo.png
+images/favicon.png
+images/og-share.jpg
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

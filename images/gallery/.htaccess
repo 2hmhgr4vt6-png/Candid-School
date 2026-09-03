@@ -1,0 +1,8 @@
+# Uploaded gallery photos — served as images only, never executed.
+php_flag engine off
+<IfModule mod_rewrite.c>
+    RewriteEngine Off
+</IfModule>
+<FilesMatch "\.(php|phtml|php[0-9]|phar|pl|py|cgi|sh|htaccess)$">
+    Require all denied
+</FilesMatch>

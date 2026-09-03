@@ -1,59 +1,170 @@
-# Candid Career Secondary School — website
+# Candid Career Secondary School — website + admin panel
 
-A static, single-page marketing site for **Candid Career Secondary School**,
-Sirutar, Suryabinayak Municipality–1, Bhaktapur, Nepal.
+The website for **Candid Career Secondary School**, Sirutar, Suryabinayak
+Municipality–1, Bhaktapur, Nepal — plus a simple admin panel so the school
+office can post notices and keep the site's details current without touching
+any code.
 
-Plain HTML, CSS and vanilla JavaScript — no build step, no framework, no
-dependencies to install. It can be dropped onto GitHub Pages, Netlify, or a
-shared-hosting `public_html` folder as-is.
+Plain PHP, CSS and vanilla JavaScript. No database, no build step, no
+dependencies to install: it runs on ordinary cPanel shared hosting as soon as
+the files are uploaded.
 
 ---
 
 ## Contents
 
+- [What the school can edit](#what-the-school-can-edit)
+- [Requirements](#requirements)
 - [Preview it locally](#preview-it-locally)
+- [Deploying to cPanel or shared hosting](#deploying-to-cpanel-or-shared-hosting)
+- [First run: setting the admin password](#first-run-setting-the-admin-password)
+- [Using the admin panel](#using-the-admin-panel)
 - [File structure](#file-structure)
-- [Replace the placeholder content](#replace-the-placeholder-content)
-- [Add real photos](#add-real-photos)
-- [Wire up the enquiry form](#wire-up-the-enquiry-form)
-- [The Facebook feed](#the-facebook-feed)
-- [The Google Map](#the-google-map)
-- [Change the colours or fonts](#change-the-colours-or-fonts)
-- [Deploy](#deploy)
+- [Adding real photos](#adding-real-photos)
+- [The enquiry form](#the-enquiry-form)
+- [Backups](#backups)
+- [If the password is lost](#if-the-password-is-lost)
+- [Security notes](#security-notes)
+- [Hosting on nginx](#hosting-on-nginx)
+- [Changing colours or fonts](#changing-colours-or-fonts)
+- [Still to fill in](#still-to-fill-in)
 - [Accessibility and browser support](#accessibility-and-browser-support)
+
+---
+
+## What the school can edit
+
+Everything below is editable at **`/admin`** — no code, no re-uploading files.
+Saves take effect on the public site immediately.
+
+| Admin screen | Controls |
+| --- | --- |
+| **Notices** | Post, edit, pin, unpublish and delete notices. Categories, dates, and PDF/image attachments. |
+| **Contact details** | Phone (two numbers), email, street/landmark, locality, district, office and school hours, map position, Facebook link, Facebook feed on/off. |
+| **School details** | Full and short school name, tagline, established year, principal's name and title, and the four statistics in the green bar. |
+| **Page text** | Welcome message, "Our story", achievements, vision, mission points, curriculum text, optional subjects, co-curricular activities, admission steps, and the facilities cards. |
+| **Gallery** | Upload photos, write captions and alt text, reorder, delete. |
+| **Settings** | Play Store / App Store links, enquiry-form destination, change the admin password. |
+
+The **Dashboard** leads with a "Still to do" list of details that have not been
+filled in yet, so it is obvious what is outstanding.
+
+Things that stay in code (rarely change): the grade-levels table, the "Why
+choose us" cards, and the parent-app feature list.
+
+---
+
+## Requirements
+
+- **PHP 8.1 or newer** with the `mbstring` and `fileinfo` extensions
+  (both standard on cPanel — under *Select PHP Version → Extensions*).
+- Write permission on `data/`, `images/gallery/` and `files/`.
+- No database, no Composer, no Node.
+
+If any requirement is missing, the site shows a short page explaining exactly
+what to change rather than a blank screen.
 
 ---
 
 ## Preview it locally
 
-The quickest way — just open the file:
-
-```
-open index.html          # macOS
-xdg-open index.html      # Linux
-start index.html         # Windows
-```
-
-That works for everything except the Facebook feed, which needs a real
-`http://` origin. To serve the folder properly, use any one of these from the
-project root:
+From the project root:
 
 ```bash
-python3 -m http.server 8000     # Python 3 (pre-installed on macOS/Linux)
-npx serve .                     # Node.js
-php -S localhost:8000           # PHP
+php -S localhost:8000
 ```
 
-Then visit <http://localhost:8000>.
+Then open <http://localhost:8000>. The admin panel is at
+<http://localhost:8000/admin>.
 
-If you use VS Code, the **Live Server** extension does the same thing with a
-right-click → *Open with Live Server*.
+Opening `index.php` by double-clicking will **not** work — PHP needs to run
+through a server. Any of these are fine too: MAMP, XAMPP, Laragon, or
+`php artisan serve`-style built-in servers.
 
-### Check the responsive breakpoints
+### Checking the responsive breakpoints
 
-Open your browser's device toolbar (`Ctrl/Cmd + Shift + M`) and test at
-**375 px** (phone), **768 px** (tablet portrait — the nav collapses to a
-hamburger here), **1024 px** (tablet landscape) and **1440 px** (desktop).
+Open the browser device toolbar (`Ctrl/Cmd + Shift + M`) and test at **375 px**,
+**768 px** (the nav collapses to a hamburger at and below this), **1024 px** and
+**1440 px**.
+
+---
+
+## Deploying to cPanel or shared hosting
+
+1. **Upload** everything to `public_html` (or a subfolder), keeping the folder
+   structure. Over FTP or cPanel's File Manager — a zip upload plus *Extract* is
+   quickest.
+2. **Set folder permissions to 755** on these three, so the admin panel can
+   write to them:
+   - `data/`
+   - `images/gallery/`
+   - `files/`
+
+   In File Manager: right-click the folder → *Change Permissions* → tick the
+   three "read" and the owner "write" boxes (755). If saving in the admin panel
+   later reports a permissions error, this is what it means.
+3. **Turn on HTTPS.** In cPanel, *SSL/TLS Status → Run AutoSSL* issues a free
+   certificate. Then uncomment the "Force HTTPS" block at the bottom of
+   `.htaccess`. This matters — the admin panel sends a password.
+4. **Visit `https://yourdomain/admin`** and set your password (next section).
+
+The included `.htaccess` handles the default document, blocks access to `data/`,
+sets security headers, enables compression and caches static assets. Apache
+picks it up automatically; nginx users see [below](#hosting-on-nginx).
+
+---
+
+## First run: setting the admin password
+
+The first time anyone visits `/admin`, it redirects to a setup page that asks
+you to choose the admin password. That page then closes itself permanently —
+once a password exists it can only be changed from inside the panel
+(*Settings → Change the admin password*).
+
+- Minimum 10 characters. A short phrase (`sirutar-school-2026`) is both easier
+  to remember and harder to guess than a short complicated word.
+- It is stored as a bcrypt hash, never as readable text.
+- There is one shared password for the whole office, by design.
+
+---
+
+## Using the admin panel
+
+### Posting a notice
+
+*Notices → Add a notice.* Give it a title, pick the date and a category, and
+write the details. Then:
+
+- **Publish on the website** — untick to save it as a draft that only you can
+  see. Drafts are invisible to visitors even at their direct URL.
+- **Pin to the top** — keeps an important notice above newer ones, on both the
+  homepage and the notice board page.
+- **Attachment** — a PDF or image up to 6 MB (exam routines, fee notices, result
+  sheets). Visitors get a "Download attachment" button.
+
+Notice text is plain text. Leave a **blank line between paragraphs** and they
+appear as separate paragraphs on the site. Notices show in three places: the
+latest four on the homepage, all of them on `/notices.php`, and each one at its
+own shareable link.
+
+### Editing the site's text
+
+*Page text* holds the longer written blocks. Two conventions:
+
+- **Big boxes** (welcome, our story, curriculum): blank line = new paragraph.
+- **List boxes** (mission, achievements, activities, admission steps): **one
+  item per line**. Leave a list empty and that section disappears from the site
+  rather than showing an empty heading.
+
+For admission steps, ending the first sentence with a full stop renders that
+sentence in bold as the step's heading.
+
+### Unfilled details
+
+Any contact detail you have not entered yet shows on the site as a small
+italic **"To be updated"** marker rather than an empty gap or a dead link — so
+a half-finished site still looks deliberate. The Dashboard lists everything
+outstanding.
 
 ---
 
@@ -61,232 +172,249 @@ hamburger here), **1024 px** (tablet landscape) and **1440 px** (desktop).
 
 ```
 .
-├── index.html          Every section of the site (single page, anchor nav)
+├── index.php               Public homepage (all sections)
+├── notices.php             Public notice board — every published notice
+├── notice.php              A single notice, at a shareable URL
+│
+├── admin/
+│   ├── index.php           Dashboard: what is still missing, recent notices
+│   ├── login.php           Password entry
+│   ├── setup.php           First-run password creation (self-closing)
+│   ├── logout.php
+│   ├── notices.php         Add / edit / pin / unpublish / delete notices
+│   ├── contact.php         Phone, email, address, hours, map, Facebook
+│   ├── content.php         Name, tagline, established, principal, statistics
+│   ├── pages.php           Long-form text blocks and facilities
+│   ├── gallery.php         Photo upload, captions, order, delete
+│   ├── settings.php        App links, form endpoint, change password
+│   └── layout.php          Shared admin chrome
+│
+├── includes/
+│   ├── bootstrap.php       Paths, JSON storage, escaping helpers
+│   ├── content.php         Editable content + the defaults behind it
+│   ├── notices.php         Notice storage and sorting
+│   ├── auth.php            Login, sessions, CSRF, rate limiting
+│   ├── uploads.php         Validated file uploads
+│   ├── public-header.php   <head> and the site navigation
+│   └── public-footer.php   CTA strip, footer, scripts
+│
+├── data/                   Content, written by the admin panel (keep writable)
+│   ├── content.json        All site content
+│   ├── notices.json        The notices
+│   ├── admin.php           Hashed password (PHP-wrapped — see Security notes)
+│   └── .htaccess           Denies web access to this folder
+│
 ├── css/
-│   └── style.css       All styles, organised into 17 numbered sections
-├── js/
-│   └── main.js         Nav, smooth scroll, scroll reveal, form validation
+│   ├── style.css           Public site
+│   └── admin.css           Admin panel
+├── js/main.js              Nav, smooth scroll, scroll reveal, form validation
 ├── images/
-│   ├── README.md       Which image goes where, and at what size
-│   └── gallery/        Gallery photos (gallery-01.jpg … gallery-08.jpg)
-└── README.md           This file
+│   ├── README.md           Which image goes where, and at what size
+│   └── gallery/            Uploaded photos (keep writable)
+└── files/                  Notice attachments (keep writable)
 ```
 
-The site is a **single page with anchor sections** — `#home`, `#about`,
-`#academics`, `#parent-app`, `#gallery`, `#admissions`, `#contact`. The nav
-links, footer links and CTA buttons all point at those IDs.
-
-Want real separate pages later? Split each `<section>` out of `index.html` into
-its own file (`about.html`, `academics.html`, …), copy the `<header>` and
-`<footer>` into each, and change the nav `href`s from `#about` to `about.html`.
+`data/`, `files/` and `images/gallery/` are in `.gitignore`: they are the live
+site's content, and committing them would overwrite the school's real content on
+every deploy.
 
 ---
 
-## Replace the placeholder content
+## Adding real photos
 
-Anything still needing real information is marked **`[PLACEHOLDER]`** in
-`index.html`, always with an HTML comment above it explaining what to put there.
-Find them all at once:
+Gallery photos are uploaded through the admin panel — no file editing.
 
-```bash
-grep -n "PLACEHOLDER" index.html
-```
+Five images are still referenced directly in the markup, because they are
+design elements rather than content. See
+[`images/README.md`](images/README.md) for the filename and size of each:
+`hero.jpg`, `welcome.jpg`, `about.jpg`, `app-screen.png`, plus `logo.png`,
+`favicon.png` and `og-share.jpg`. Each has an HTML comment at its spot showing
+the `<img>` tag to paste in. Compress everything first —
+[squoosh.app](https://squoosh.app) is free and runs in the browser.
 
-### Must be replaced before publishing
-
-| What | Where to find it | Sections it appears in |
-| --- | --- | --- |
-| **Phone number** | School office | Admissions callout, Contact, CTA strip, Footer |
-| **Email address** | School office / Facebook page | Admissions callout, Contact, Footer, form `data-mailto` |
-| **Exact street address** | Google Maps listing / school office | Contact, Footer |
-| **Office & school hours** | School office | Admissions callout, Contact |
-| **Established year** | Facebook *About* section or school records | About Us |
-| **Principal's name** | School office | Welcome section signature |
-| **Achievements** | Facebook posts, SEE results | About Us |
-| **Optional subjects (Grades 9–10)** | Academics coordinator | Academics |
-| **App store links** | Play Store / App Store listings | Parent App |
-| **Gallery captions** | You | Gallery |
-| **Site URL + share image** | Your host | `<meta property="og:*">` in `<head>` |
-
-Phone and email each appear in **more than one place** — search-and-replace
-rather than editing one by one:
-
-```bash
-# example: set the phone number everywhere at once
-sed -i 's|\[PLACEHOLDER — phone number\]|01-XXXXXXX|g' index.html
-sed -i 's|href="tel:+977"|href="tel:+977XXXXXXXXX"|g' index.html
-```
-
-### Tagline
-
-No tagline was confirmed from the school's Facebook page, so the hero currently
-shows the first of three options. All three are listed in a comment right above
-it in `index.html` — keep one, or paste the school's own line:
-
-1. **"Learning today, leading tomorrow."** ← currently in use
-2. **"Character first. Career always."**
-3. **"Where values shape careers."**
-
-### Facts already filled in as real content
-
-These came from the school's own details and need no editing: the name,
-location, Nursery–Grade 10 range, private co-educational day-school status, the
-~554 student count, the Government of Nepal national curriculum, the Facebook
-page URL, and the map coordinates (27.6509446, 85.3820644).
-
-Body copy in the Welcome, About, Vision & Mission, Facilities, Academics and
-Admissions sections is written to be accurate to those facts but is **editorial
-placeholder text** — read it through and adjust anything that does not match how
-the school actually runs.
+Please make sure the school has parents' consent before publishing any
+recognisable photograph of a student.
 
 ---
 
-## Add real photos
+## The enquiry form
 
-See [`images/README.md`](images/README.md) for the full table of filenames and
-sizes. In short:
+The admissions form validates in the browser and, by default, opens the
+visitor's own email app addressed to the school email from *Contact details*.
+That works everywhere but depends on the visitor having email set up.
 
-1. Save your compressed photo into `images/` (or `images/gallery/`) using the
-   filename listed there.
-2. In `index.html`, find the matching `<div class="img-placeholder">` and replace
-   the whole block with an `<img>` tag. Every gallery tile has a copy-paste
-   example in the comment above the gallery grid:
-
-   ```html
-   <figure class="gallery-item reveal">
-     <img src="images/gallery/gallery-01.jpg"
-          alt="Grade 5 students presenting a science project"
-          loading="lazy" width="800" height="600" />
-     <figcaption>Science exhibition, Grade 5</figcaption>
-   </figure>
-   ```
-
-3. For the **hero background**, also uncomment the `background-image` line in the
-   `.hero-media` rule (`css/style.css`, section 6) so the photo sits behind the
-   gradient overlay.
-
-Always write a descriptive `alt` — it is what screen-reader users and search
-engines read.
+To collect enquiries properly, create a free form at
+[formspree.io](https://formspree.io) and paste the address it gives you into
+*Settings → Form endpoint*. The form posts the fields `name`, `phone`, `email`,
+`grade` and `message`.
 
 ---
 
-## Wire up the enquiry form
+## Backups
 
-The Admissions form validates in the browser but has **no backend**. Until you
-connect one, submitting it opens the visitor's email app (using the
-`data-mailto` address on the `<form>` — set that to the school's real email).
+The entire content of the website is three things:
 
-Pick whichever suits your host. The full instructions are also in a comment
-above the `<form>` in `index.html`.
-
-**Formspree** (works on any static host, free tier available):
-
-```html
-<form class="enquiry-form" id="enquiryForm" novalidate
-      action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+```
+data/content.json     all site text and settings
+data/notices.json     every notice
+images/gallery/       the photos
+files/                notice attachments
 ```
 
-**Netlify Forms** (if you deploy to Netlify):
+Download those and you have a complete backup. To restore, upload them back.
+cPanel's *Backup* tool covers them automatically as part of a home-directory
+backup.
 
-```html
-<form class="enquiry-form" id="enquiryForm" novalidate
-      name="admissions" method="POST" data-netlify="true">
+---
+
+## If the password is lost
+
+There is no email recovery — the site has no way to send email reliably on
+shared hosting, and a recovery link would be a weak point.
+
+Instead: delete **`data/admin.php`** on the server (File Manager or FTP). The
+next visit to `/admin` shows the first-run setup page again, and you can set a
+new password. No content is lost.
+
+---
+
+## Security notes
+
+What is built in:
+
+- **Passwords** are stored as bcrypt hashes (`password_hash`), never in the
+  clear, and re-hashed automatically if PHP's default cost changes.
+- **The credentials file is PHP, not JSON.** `data/admin.php` returns a PHP
+  array, so a direct web request to it *executes* the file and outputs nothing —
+  on any web server, with or without the `.htaccess`. A `.json` file would be
+  served as readable text by a server that ignored the `.htaccess` rules.
+- **CSRF tokens** on every form. A POST without a valid token is rejected, so
+  another site cannot make a logged-in admin's browser change your content.
+- **Login rate limiting** — 5 failed attempts from one IP triggers a 15-minute
+  lockout, which makes password guessing impractical.
+- **Session hardening** — `HttpOnly` and `SameSite=Lax` cookies, marked
+  `Secure` automatically over HTTPS, a fresh session id on login, a 2-hour idle
+  timeout, and a check that binds the session to the browser that created it.
+- **Output escaping everywhere.** All content is stored as plain text and
+  escaped on the way out, so no editor (or attacker who got in) can inject
+  markup or script into a page. This is verified by an automated test that
+  posts a `<script>` payload and asserts it renders as visible text.
+- **Upload validation** — extension *and* real content type must both be on the
+  whitelist, images must genuinely decode as images, filenames are generated
+  rather than accepted, a 6 MB cap, and an `.htaccess` in every upload folder
+  that disables script execution.
+- **Path traversal** is blocked on every delete: the resolved path must sit
+  inside the intended folder.
+- **`noindex`** on all admin pages.
+
+What is your responsibility:
+
+- **Turn on HTTPS.** Until you do, the admin password crosses the network in
+  the clear. The Dashboard shows a reminder while the panel is served over
+  plain `http://`. This is the single most important step.
+- Keep the password to the people who need it, and change it in *Settings* when
+  someone leaves.
+
+---
+
+## Hosting on nginx
+
+`.htaccess` files are ignored by nginx, so add the equivalent to your server
+block. (`data/admin.php` is safe either way — see Security notes — but the
+content files should not be browsable.)
+
+```nginx
+server {
+    index index.php index.html;
+
+    # Content store: not directly readable
+    location ^~ /data/  { deny all; return 404; }
+
+    # Uploads: serve as files, never execute
+    location ^~ /files/          { location ~ \.php$ { deny all; } }
+    location ^~ /images/gallery/ { location ~ \.php$ { deny all; } }
+
+    # Hide dotfiles
+    location ~ /\. { deny all; return 404; }
+
+    location / { try_files $uri $uri/ =404; }
+
+    location ~ \.php$ {
+        include        fastcgi_params;
+        fastcgi_pass   unix:/run/php/php8.1-fpm.sock;
+        fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options        "SAMEORIGIN" always;
+    add_header Referrer-Policy        "strict-origin-when-cross-origin" always;
+}
 ```
 
-**Your own PHP script** (typical on cPanel shared hosting):
-
-```html
-<form class="enquiry-form" id="enquiryForm" novalidate
-      action="send.php" method="POST">
-```
-
-`js/main.js` detects a real `action` and lets the browser submit normally; it
-only falls back to `mailto:` when the form has no action. Field names sent are
-`name`, `phone`, `email`, `grade` and `message`.
-
 ---
 
-## The Facebook feed
-
-The News & Updates section embeds the official Facebook Page plugin for
-[facebook.com/candid.intl.5](https://www.facebook.com/candid.intl.5) via the
-Facebook SDK (loaded at the bottom of `index.html` — no app or API key needed).
-
-Things worth knowing:
-
-- It **will not render from `file://`** — serve the site over `http://` to see it
-  locally.
-- Browsers or extensions that block third-party scripts will hide it. A plain
-  text link to the page is always shown underneath as a fallback.
-- The plugin needs a pixel width, so `js/main.js` measures the container and
-  sets `data-width` (Facebook caps it at 500 px), re-rendering on resize.
-- To remove the feed entirely, delete the `<section id="news">` block and the
-  `<div id="fb-root">` plus the `connect.facebook.net` `<script>` tag.
-
----
-
-## The Google Map
-
-The Contact section embeds an iframe centred on the school's coordinates —
-**27.6509446, 85.3820644** — using Google's keyless `output=embed` URL. Nothing
-to configure and no billing account required.
-
-To recentre it, edit the `q=` values in the iframe `src` (and in the
-"Open in Google Maps" button below it). Change `z=17` to zoom in or out.
-
-Once the school has a verified Google Business Profile, you can swap the URL for
-the *Share → Embed a map* snippet from that listing to get the school's name and
-reviews in the map pin.
-
----
-
-## Change the colours or fonts
+## Changing colours or fonts
 
 Every colour, font, radius and shadow is a CSS custom property at the top of
-`css/style.css` (section 1). Change it in one place and the whole site follows:
+`css/style.css` (section 1). Change it once and the whole site follows:
 
 ```css
 :root {
   --green-800: #123f36;   /* primary — headers, buttons, stats bar */
   --gold-500:  #d9901a;   /* warm accent — eyebrows, CTAs, highlights */
-  --font-display: "Fraunces", Georgia, serif;   /* headings */
+  --font-display: "Fraunces", Georgia, serif;                  /* headings */
   --font-sans:    "Plus Jakarta Sans", system-ui, sans-serif;  /* body */
 }
 ```
 
-Fonts are loaded from Google Fonts via a `<link>` in `<head>`. If you change
-`--font-display` or `--font-sans`, update that link too.
+The admin panel has its own equivalents at the top of `css/admin.css`. Fonts
+load from Google Fonts via a `<link>` in `includes/public-header.php` — update
+that too if you change the font families.
 
 ---
 
-## Deploy
+## Still to fill in
 
-**GitHub Pages** — push this repo, then *Settings → Pages → Deploy from a
-branch*, pick your branch and the `/ (root)` folder.
+These came from the school's own details and are already correct: the name,
+location, Nursery–Grade 10 range, private co-educational day-school status, the
+~554 student count, the Government of Nepal national curriculum, the Facebook
+page, and the map coordinates (27.6509446, 85.3820644).
 
-**Netlify** — drag the project folder onto the Netlify dashboard, or connect the
-repo. No build command; publish directory `.`.
+Everything the school still needs to supply is now a field in the admin panel,
+and the Dashboard lists what is outstanding:
 
-**cPanel / shared hosting** — upload `index.html`, `css/`, `js/` and `images/`
-into `public_html` over FTP or the File Manager, keeping the folder structure.
+- Phone number, email address, exact street/landmark, office and school hours
+- Established year, principal's name
+- Achievements, optional subjects for Grades 9–10
+- Parent app store links
+- Gallery photos, and the five design images listed above
 
-There is nothing to build and no server-side code, so any static host works.
+**No tagline** was confirmed from the Facebook page, so the site currently shows
+*"Learning today, leading tomorrow."* Two alternatives are offered in the admin
+panel next to the field: *"Character first. Career always."* and *"Where values
+shape careers."* Replace it with the school's own line if they have one.
+
+The body text in the Welcome, About, Vision & Mission, Facilities, Academics and
+Admissions sections is written to match the facts above, but it is **editorial
+placeholder prose** — particularly the admission steps and the age bands in the
+grade table, which follow common Nepali school practice rather than this
+school's stated policy. Read it through and correct anything that does not match
+how the school actually runs.
 
 ---
 
 ## Accessibility and browser support
 
-Built in: semantic HTML5 landmarks, a skip link, visible focus rings, labelled
-form fields with `role="alert"` error messages, `aria-expanded` on the mobile
-nav toggle (closes on Escape and on outside click), `aria-current` on the active
-nav link, an `aria-live` form status, alt text or `role="img"` labels on every
-image and placeholder, and colour contrast meeting WCAG AA on text.
+Semantic HTML5 landmarks, a skip link, visible focus rings, labelled form
+fields with `role="alert"` errors, `aria-expanded` on the mobile nav (closes on
+Escape and on outside click), `aria-current` on the active nav link, an
+`aria-live` form status, alt text or `role="img"` labels on every image and
+placeholder, and colour contrast meeting WCAG AA on text. The gallery asks for
+a screen-reader description separately from the visible caption.
 
-Scroll-reveal animations, the counter and smooth scrolling are all disabled
-automatically when the visitor has *reduce motion* enabled in their operating
-system. If JavaScript fails to load, every section still renders — the reveal
-classes are only hidden once JS confirms it is running.
+Scroll-reveal animations, the counter and smooth scrolling switch off
+automatically when the visitor has *reduce motion* enabled. If JavaScript fails
+to load, every section still renders. A print stylesheet drops the nav, map,
+form and Facebook feed.
 
-Works in all current versions of Chrome, Edge, Firefox and Safari, on desktop
-and mobile. A print stylesheet is included, which drops the nav, map, form and
-Facebook feed.
+Works in current Chrome, Edge, Firefox and Safari, on desktop and mobile.

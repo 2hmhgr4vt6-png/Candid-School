@@ -1,8 +1,10 @@
 # Images
 
-Every image on the site is currently a gray placeholder drawn in CSS. Drop real
-files here using the exact filenames below and the placeholders disappear —
-`index.html` has an HTML comment at each spot telling you what to swap.
+Gallery photos are managed from the admin panel (*Gallery*). The images listed
+below are design elements rather than content, so they are still referenced
+directly in the markup: drop a real file here using the exact filename and the
+grey placeholder disappears. `index.php` and `includes/public-header.php` have an
+HTML comment at each spot showing the tag to paste in.
 
 ## What goes where
 
@@ -12,8 +14,8 @@ files here using the exact filenames below and the placeholders disappear —
 | `welcome.jpg` | Welcome section | 900 × 1200 px, portrait | Students with a teacher, or a classroom in use. |
 | `about.jpg` | About Us section | 900 × 1200 px, portrait | The school building or main gate. |
 | `app-screen.png` | Parent App section | 600 × 1200 px, portrait | A real screenshot of the parent app home screen. |
-| `gallery/gallery-01.jpg` … `gallery-08.jpg` | Gallery grid | 800 × 600 px, 4:3 landscape | Classrooms, cultural programme, sports day, prize distribution, field trip, library, assembly, campus. |
-| `logo.png` | Header + footer brand mark | 200 px tall, transparent PNG | The school crest. Replacing it also means swapping the inline SVG monogram — see the comment in the `.brand` block of `index.html`. |
+| `gallery/` | Gallery grid | 800 × 600 px, 4:3 landscape | **Upload these through the admin panel** (*Gallery*) rather than by hand — it stores the caption, alt text and order for you. Files dropped in here over FTP are detected and offered for adoption on that screen. |
+| `logo.png` | Header + footer brand mark | 200 px tall, transparent PNG | The school crest. Replacing it also means swapping the inline SVG monogram — see the comment in the `.brand` block of `includes/public-header.php`. |
 | `favicon.png` | Browser tab | 512 × 512 px | Square crop of the crest. |
 | `og-share.jpg` | Facebook / WhatsApp link previews | 1200 × 630 px | Campus photo with the school name legible. |
 

@@ -1,0 +1,9 @@
+# data/ holds the site's content and the hashed admin password.
+# Nothing in here should ever be served over the web — PHP reads it from disk.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
